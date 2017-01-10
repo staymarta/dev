@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+
+  # Rancher Server. (orchestration)
+  rancher:
+    image: rancher/server:stable
+    volumes:
+      - ./rancher/mysql:/var/lib/mysql
+    ports:
+      - "8080:8080"
+
+  # Default Rancher Agent. (painfully scraped from init)
+  #agent:
+  #  image: rancher/agent:v1.1.2
+  #  entrypoint: /bin/bash -c "sed -i -- 's/rancher-agent/dev_agent_1/g' /run.sh; /run.sh -- /usr/bin/share-mnt /var/lib/rancher/volumes /var/lib/kubelet -- norun"
+  #  links:
+  #    - rancher
+  #  volumes:
+  #    - /:/host
+  #    - /var/run/docker.sock:/var/run/docker.sock
+  #    - ./rancher/agent_default/rancher:/var/lib/rancher
+  #    - ./rancher/agent_default/cattle:/var/lib/cattle
+  #    - ./rancher/agent_default/cni:/.r
+  #  privileged: true
+  #  pid: "host"
+  #  network_mode: "bridge"
+  #  environment:
+  #    CATTLE_AGENT_PIDNS:  "host"
+  #    no_proxy:            "*.local, 169.254/16"
+  #    CATTLE_ACCESS_KEY:   "1B3DA431B3420656C121"
+  #    CATTLE_SECRET_KEY:   "sFYtvMH48UuyuNopkVumKSHHDtpo9B2urEdMT7uz"
+  #    CATTLE_URL:          "http://rancher:8080/v1"
+  #    RANCHER_AGENT_IMAGE: "rancher/agent:v1.1.2"
