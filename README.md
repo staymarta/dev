@@ -11,6 +11,8 @@ $ setup.sh
 
 ... and you're done!
 
+Rancher will be accessible at http://127.0.0.1:8080.
+
 ## Things to come...
 
 * Build Pipeline intergration
