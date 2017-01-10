@@ -79,7 +79,7 @@ if [[ ! -e "./rancher/mysql" ]]; then
     unzip -q ./rancher/mysql -drancher/
 fi
 
-echo "I: Pulling server image: ${SERER_DOCKER_IMAGE}"
+echo "I: Pulling server image: ${SERVER_DOCKER_IMAGE}"
 docker pull ${SERVER_DOCKER_IMAGE}
 
 echo "I: Starting Rancher Server"

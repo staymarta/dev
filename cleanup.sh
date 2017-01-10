@@ -6,10 +6,11 @@ echo "I: removing all docker-machines created by setup.sh"
 docker-machine stop rancher rancher-agent
 docker-machine rm rancher rancher-agent
 
-echo "I: Cleaning up docker..."
+echo "I: Cleaning up docker ..."
 docker stop rancher-server
 docker rm rancher-server
 
+# TODO docker-machine certs without breaking anything.
 
 echo -n "Delete ./rancher/mysql? (Rancher Database) [Y/n]: "
 read CONFIRM_DELETE
