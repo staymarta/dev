@@ -4,6 +4,24 @@ This repo contains everything you need to start hacking on the StayMarta backend
 
 ## Setup
 
+### Prerequisites
+
+* [docker-machine](https://docs.docker.com/machine/install-machine/)
+* [curl](https://curl.haxx.se/)
+
+#### Linux
+
+* [docker](https://docker.io)
+
+#### Mac
+
+* [Docker for Mac](https://docs.docker.com/engine/installation/mac/)
+* [Homebrew](http://brew.sh/)
+
+#### Windows
+
+not supported yet...
+
 ```bash
 
 $ setup.sh
