@@ -9,10 +9,7 @@ This repo contains everything you need to start hacking on the StayMarta backend
 * [docker-machine](https://docs.docker.com/machine/install-machine/)
 * [curl](https://curl.haxx.se/)
 * [VirtualBox 5.x](https://www.virtualbox.org/)
-
-#### Linux
-
-* [docker](https://docker.io)
+* [docker](https://docker.io) EXCEPT Mac, see below.
 
 #### Mac
 
@@ -24,6 +21,8 @@ The setup script can install `docker-machine` and `brew`.
 #### Windows
 
 not supported yet...
+
+### Install
 
 ```bash
 
