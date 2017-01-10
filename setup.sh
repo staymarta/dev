@@ -13,6 +13,7 @@
 #SERVER_HOST="rancher"
 #SERVER_IMAGE="https://github.com/rancher/os/releases/download/v0.7.1/rancheros.iso"
 SERVER_IP="127.0.0.1"
+SERVER_DOCKER_IMAGE="rancher/server:stable"
 
 WORKER_NAME="rancher-agent"
 WORKER_MEM="2048"
@@ -78,9 +79,12 @@ if [[ ! -e "./rancher/mysql" ]]; then
     unzip -q ./rancher/mysql -drancher/
 fi
 
+echo "I: Pulling server image: ${SERER_DOCKER_IMAGE}"
+docker pull ${SERVER_DOCKER_IMAGE}
+
 echo "I: Starting Rancher Server"
 if [ "$(curl -s http://${SERVER_IP}:8080/ping)" != "pong" ]; then
-  docker run -d -v $(PWD)/rancher/mysql:/var/lib/mysql -p 8080:8080 rancher/server:stable
+  docker run --name rancher-server -d -v $(PWD)/rancher/mysql:/var/lib/mysql -p 8080:8080 ${SERVER_DOCKER_IMAGE}
 
   echo -n "I: (${SERVER_IP}) Waiting for server to start ."
   while sleep 5; do
