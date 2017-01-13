@@ -25,4 +25,17 @@ else
   echo "--> Not Deleting."
 fi
 
+echo -n "Delete agent information? (Fixes Agent Duplication) [Y/n]: "
+read CONFIRM_DELETE
+
+CONFIRM_DELETE_LOWER="$(echo ${CONFIRM_DELETE} | tr '[:upper:]' '[:lower:]')"
+
+# Convert
+if [[ "$CONFIRM_DELETE_LOWER" == "y" ]]; then
+  rm -r ./persist
+  echo "--> Deleted."
+else
+  echo "--> Not Deleting."
+fi
+
 echo "I: Finished, run './setup.sh' again to restart."

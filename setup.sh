@@ -20,7 +20,8 @@ WORKER_NAME="rancher-agent"
 WORKER_MEM="2048"
 WORKER_DISKSIZE="20000" # 20GB
 WORKER_CPU="2"
-WORKER_IMAGE="https://github.com/rancher/os/releases/download/v0.7.1/rancheros.iso"
+WORKER_AGENT="rancher/agent:v1.1.2"
+WORKER_IMAGE="https://github.com/boot2docker/boot2docker/releases/download/v1.12.6/boot2docker.iso"
 WORKER_COUNT="2" # TODO
 
 # TODO: try to support xhyve again.
@@ -63,9 +64,9 @@ WORKER_COUNT="2" # TODO
 #   done
 # else
 #   echo "I: Already running."
+# Mac OSX checks
 # fi
 
-# Mac OSX checks
 
 echo "I: running pre-checks ..."
 
@@ -113,6 +114,8 @@ else # *nix or cygwin
   echo "IMPORTANT: Not MacOS, can\'t check for deps."
 fi
 
+VBoxManage 1>/dev/null 2>/dev/null || echo "E: Can\'t run VBoxManage. Please make sure it's in PATH. $(exit 10)"
+
 echo "I: checks succedded."
 
 if [[ ! -e "./rancher" ]]; then
@@ -140,7 +143,7 @@ if [ "$(curl -s http://${SERVER_IP}:8080/ping)" != "pong" ]; then
   echo -n "I: (${SERVER_IP}) Waiting for server to start ."
   while sleep 5; do
     if [ "$(curl -s http://${SERVER_IP}:8080/ping)" = "pong" ]; then
-      echo Success
+      echo " OK"
       break
     fi
     echo -n "."
@@ -149,19 +152,56 @@ else
   echo "I: Already Running."
 fi
 
+################################################################################
+# WORKER
 
 echo "I: Creating worker..."
 docker-machine create ${WORKER_NAME} --driver virtualbox --virtualbox-disk-size="${WORKER_DISKSIZE}" \
   --virtualbox-cpu-count "${WORKER_CPU}" --virtualbox-memory "${WORKER_MEM}" \
   --virtualbox-boot2docker-url="${WORKER_IMAGE}"
 
+# TODO Copy over this "init" script
+echo -n "I: Configuring worker IP ... "
+echo " \
+  echo 'I: changing eth1 ip ...'; \
+  cat /var/run/udhcpc.eth1.pid | xargs sudo kill; \
+  ifconfig eth1 192.168.99.10 netmask 255.255.255.0 broadcast 192.168.99.255 up; \
+  ip addr; \
+  echo 'I: mounting rancher data to persist.'; \
+  mkdir -vp /var/lib/rancher; \
+  mount -t vboxsf '${WORKER_NAME}-persist' /var/lib/rancher; \
+  echo 'mount returned $?' \
+" | docker-machine ssh ${WORKER_NAME} sudo tee /var/lib/boot2docker/bootsync.sh > /dev/null
+docker-machine ssh ${WORKER_NAME} sudo chmod +x /var/lib/boot2docker/bootsync.sh
+echo "OK"
+
+# Put the new IP into effect.
+echo " --> Stopping worker ..."
+docker-machine stop ${WORKER_NAME}
+
+# TODO: Volume discovery.
+echo -n "I: Configuring worker to persist some data ... "
+mkdir -p "$(pwd)/persist/${WORKER_NAME}/agent"
+VBoxManage sharedfolder add ${WORKER_NAME} --name "${WORKER_NAME}-persist" --hostpath "$(pwd)/persist/${WORKER_NAME}/agent"
+echo "OK"
+
+echo " --> Starting worker ..."
+docker-machine start ${WORKER_NAME}
+
+echo " --> Regenerating worker certs ..."
+docker-machine regenerate-certs -f ${WORKER_NAME}
+
+# Always consistently get IP.
 WORKER_IP=$(docker-machine ssh ${WORKER_NAME} ip addr show eth1 | grep inet | awk '{print $2}' | awk -F '/' '{print $1}' | head -n1)
 
-echo "I: Fetching agent string..."
+echo "I: (${WORKER_NAME}->${WORKER_IP}) pulling ${WORKER_AGENT}"
+docker-machine ssh docker pull ${WORKER_AGENT}
+
+echo "I: (${WORKER_NAME}->${WORKER_IP}) fetching agent string..."
 PROJECT_ID=$(curl -s -X GET http://${SERVER_IP}:8080/v1/projects | python -c'import json,sys;print(json.load(sys.stdin)["data"][0]["id"])')
 TOKEN_ID=$(curl -s -X POST http://${SERVER_IP}:8080/v1/projects/${PROJECT_ID}/registrationtokens | python -c'import json,sys; print(json.load(sys.stdin))')
 URL=$(curl -s -X GET http://${SERVER_IP}:8080/v1/projects/${PROJECT_ID}/registrationtokens | python -c'import json,sys; print(json.load(sys.stdin)["data"][0]["registrationUrl"])')
-COMMAND="sudo docker run -e CATTLE_AGENT_IP="${WORKER_IP}" -d --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:v1.1.2 ${URL}"
+COMMAND="sudo docker run -e CATTLE_AGENT_IP="${WORKER_IP}" -d --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher ${WORKER_AGENT} ${URL}"
 
 docker-machine ssh ${WORKER_NAME} ${COMMAND}
 

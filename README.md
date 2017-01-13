@@ -49,6 +49,10 @@ Please attach a full log, and the output of a couple of commands:
 
 These commands will help us debug issues much faster!
 
+## Services
+
+Jenkins is running on: `192.168.99.10`
+
 ## License
 
 BSD-3-Clause
