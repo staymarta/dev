@@ -167,10 +167,14 @@ echo " \
   cat /var/run/udhcpc.eth1.pid | xargs sudo kill; \
   ifconfig eth1 192.168.99.10 netmask 255.255.255.0 broadcast 192.168.99.255 up; \
   ip addr; \
-  echo 'I: mounting rancher data to persist.'; \
+  echo 'I: making rancher agent data persist...'; \
   mkdir -vp /var/lib/rancher; \
   mount -t vboxsf '${WORKER_NAME}-persist' /var/lib/rancher; \
-  echo 'mount returned $?' \
+  echo 'mount returned \$?'; \
+  echo 'I: creating persistant /service mount...'; \
+  mkdir -vp '/service'; \
+  mount -t vboxsf -o uid=1000,gid=50 '${WORKER_NAME}-link' /service; \
+  echo 'mount returned \$?' \
 " | docker-machine ssh ${WORKER_NAME} sudo tee /var/lib/boot2docker/bootsync.sh > /dev/null
 docker-machine ssh ${WORKER_NAME} sudo chmod +x /var/lib/boot2docker/bootsync.sh
 echo "OK"
@@ -180,9 +184,16 @@ echo " --> Stopping worker ..."
 docker-machine stop ${WORKER_NAME}
 
 # TODO: Volume discovery.
-echo -n "I: Configuring worker to persist some data ... "
-mkdir -p "$(pwd)/persist/${WORKER_NAME}/agent"
-VBoxManage sharedfolder add ${WORKER_NAME} --name "${WORKER_NAME}-persist" --hostpath "$(pwd)/persist/${WORKER_NAME}/agent"
+echo -n "I: Configuring worker to allow storage persistance. ... "
+
+# Preemptively create folder(s).
+mkdir -p "$(pwd)/storage/${WORKER_NAME}/agent"
+mkdir -p "$(pwd)/storage/${WORKER_NAME}/service"
+
+# Create shared folders
+VBoxManage sharedfolder add ${WORKER_NAME} --name "${WORKER_NAME}-persist" --hostpath "$(pwd)/storage/${WORKER_NAME}/agent"
+VBoxManage sharedfolder add ${WORKER_NAME} --name "${WORKER_NAME}-link" --hostpath "$(pwd)/storage/${WORKER_NAME}/service"
+
 echo "OK"
 
 echo " --> Starting worker ..."

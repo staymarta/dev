@@ -2,6 +2,8 @@
 #
 # Cleanup setup script.
 
+WORKER_NAME="rancher-agent"
+
 echo "I: removing all docker-machines created by setup.sh"
 docker-machine stop rancher rancher-agent
 docker-machine rm rancher rancher-agent
@@ -32,7 +34,7 @@ CONFIRM_DELETE_LOWER="$(echo ${CONFIRM_DELETE} | tr '[:upper:]' '[:lower:]')"
 
 # Convert
 if [[ "$CONFIRM_DELETE_LOWER" == "y" ]]; then
-  rm -r ./persist
+  rm -r ./storage
   echo "--> Deleted."
 else
   echo "--> Not Deleting."

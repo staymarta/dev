@@ -33,6 +33,13 @@ $ setup.sh
 
 Rancher will be accessible at http://127.0.0.1:8080.
 
+#### Controling the Stack
+
+After creation, you have two options:
+
+  * `start.sh` - starts the entire stack
+  * `cleanup.sh` - customizable removal of the stack.
+
 ## Things to come...
 
 * Build Pipeline intergration
@@ -51,7 +58,33 @@ These commands will help us debug issues much faster!
 
 ## Services
 
-Jenkins is running on: `192.168.99.10`
+Jenkins is running on: `192.168.99.10` at `8080` and owns `50000`
+
+
+All services has the ability to persist data across git. Simply mount the folder
+onto `HOST_MOUNT:IN_CONTAINER` as "/service/some/path:/path/to/save"
+
+*NOTE*: If you run into permission issues, please run you program with the user
+id being `1000`.
+
+## FAQ
+
+### How do I deploy?
+
+Coming soon...
+
+### I don't like rebuilding images!
+
+Simple, just mirror your service to /service (using rsync, or whatever)
+
+and then write code in the following dir `./storage/WORKER_NAME/service/<your-dir>`
+
+**NOTE**: Be careful to *never* write to /service without a dir included, since you
+could overwrite other service('s) data.
+
+### How do I add more agents?
+
+This is pretty simple, but it's coming soon!
 
 ## License
 
