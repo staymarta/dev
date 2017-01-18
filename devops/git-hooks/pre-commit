@@ -1,3 +1,6 @@
 #!/bin/sh
 echo "--> running make_snapshot"
 ./devops/make_snapshot.sh
+
+echo " --> adding new snapshot(s) to commit"
+git add snapshots/*

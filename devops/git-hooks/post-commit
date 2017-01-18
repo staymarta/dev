@@ -1,8 +1,0 @@
-#!/bin/sh
-echo "--> POST-COMMIT STAGE"
-if [ -e ".commit" ]; then
-    rm .commit
-    echo "--> Adding snapshots to commit"
-    git add snapshots/*.7z
-    git commit --amend -C HEAD --no-verify
-fi
