@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "--> running make_snapshot"
+./devops/make_snapshot.sh
