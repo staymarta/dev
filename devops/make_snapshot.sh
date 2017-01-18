@@ -18,5 +18,6 @@ do
     rm -v "${SNAPSHOT_FILE}"
   fi
 
-  7z a "${SNAPSHOT_FILE}" $file
+  7z a "${SNAPSHOT_FILE}" $file 1>/dev/null
+  mv -v ${SNAPSHOT_FILE} "../snapshots"
 done
