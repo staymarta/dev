@@ -49,6 +49,12 @@ if [[ "$(uname)" == "Darwin" ]]; then
     exit 10
   fi
 
+  # Check for docker
+  if [[ ! -e "/usr/local/bin/7z" ]]; then
+    echo "I: Installing p7zip ..."
+    brew install p7zip
+  fi
+
   # Check for docker-machine
   if [[ ! -e "/usr/local/bin/docker-machine" ]]; then
     echo "I: docker-machine not found, would you like me to install it?"
