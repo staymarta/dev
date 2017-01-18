@@ -75,9 +75,9 @@ Coming soon...
 
 ### I don't like rebuilding images!
 
-Simple, just mirror your service to /service (using rsync, or whatever)
+Simple, just mirror your service to /storage (using rsync, or whatever)
 
-and then write code in the following dir `./storage/WORKER_NAME/service/<your-dir>`
+and then write code in the following dir `./storage/WORKER_NAME/<your-dir>`
 
 **NOTE**: Be careful to *never* write to /service without a dir included, since you
 could overwrite other service('s) data.

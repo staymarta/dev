@@ -124,43 +124,50 @@ echo "OK"
 echo " --> Stopping worker ..."
 docker-machine stop ${WORKER_NAME}
 
-echo "W: Must have sudo permission for this next action. (NFS)"
-sudo echo
-
 # TODO: Volume discovery.
-#echo -n "I: Configuring worker to allow storage persistance. ... "
+echo -n "I: Configuring worker to allow storage persistance. ... "
 
 # Preemptively create folder(s).
-#mkdir -p "$(pwd)/storage/${WORKER_NAME}/agent"
-#mkdir -p "$(pwd)/storage/${WORKER_NAME}/service"
+mkdir -p "$(pwd)/agents/${WORKER_NAME}"
+mkdir -p "$(pwd)/storage/${WORKER_NAME}"
 
 # Create shared folders
-#VBoxManage sharedfolder add ${WORKER_NAME} --name "persist" --hostpath "$(pwd)/storage/${WORKER_NAME}/agent"
-#VBoxManage sharedfolder add ${WORKER_NAME} --name "link" --hostpath "$(pwd)/storage/${WORKER_NAME}/service"
+VBoxManage sharedfolder add ${WORKER_NAME} --name "agent" --hostpath "$(pwd)/agents/${WORKER_NAME}"
+VBoxManage sharedfolder add ${WORKER_NAME} --name "storage" --hostpath "$(pwd)/storage/${WORKER_NAME}"
 
-echo "I: Setting up nfsd ..."
-
-echo " --> Generating exports ..."
-echo "$(pwd)/storage -mapall=root -alldirs" > ./devops/exports
-
-echo " --> Stopping nfsd if running ..."
-sudo nfsd stop
-
-echo " --> Setting up exports ..."
-sudo cp ./devops/exports /etc/exports
-
-echo " --> Unloading nfsd service ..."
-sudo launchctl unload /System/Library/LaunchDaemons/com.apple.nfsd.plist 2>/dev/null
-
-echo " --> Launching nsfd via launchctl ..."
-sudo nfsd enable
-sudo launchctl load /System/Library/LaunchDaemons/com.apple.nfsd.plist
-sudo nfsd restart # Just in case.
-
-echo " --> nfsd status"
-sudo nfsd status
-
-echo "OK"
+#echo "I: Setting up nfsd ..."
+#
+#echo " --> Generating exports ..."
+#echo "/shares -mapall=root -alldirs" > ./devops/exports
+#
+#echo " --> Creating share in /shares"
+#if [[ -e "/shares" ]]; then
+#  echo "N: /shares already exists ..."
+#else
+#  rm -rf /shares ./storage
+#  sudo mkdir "/shares"
+#  sudo chown $(whoami) /shares
+#  sudo ln -s /shares ./storage
+#fi
+#
+#echo " --> Stopping nfsd if running ..."
+#sudo nfsd stop
+#
+#echo " --> Setting up exports ..."
+#sudo cp ./devops/exports /etc/exports
+#
+#echo " --> Unloading nfsd service ..."
+#sudo launchctl unload /System/Library/LaunchDaemons/com.apple.nfsd.plist 2>/dev/null
+#
+#echo " --> Launching nsfd via launchctl ..."
+#sudo nfsd enable
+#sudo launchctl load /System/Library/LaunchDaemons/com.apple.nfsd.plist
+#sudo nfsd restart # Just in case.
+#
+#echo " --> nfsd status"
+#sudo nfsd status
+#
+#echo "OK"
 
 echo " --> Starting worker ..."
 docker-machine start ${WORKER_NAME}
