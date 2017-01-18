@@ -95,6 +95,27 @@ if [[ ! -e "./rancher/mysql" ]]; then
     unzip -q ./rancher/mysql -drancher/
 fi
 
+echo "I: Extracting machine agents."
+pushd "snapshots" 1>/dev/null
+mkdir "../storage" 2>/dev/null
+
+# Extract all available snapshots.
+for file in $(ls);
+do
+  MACHINENAME="`echo ${file} | cut -d "_" -f 2 | cut -d "." -f 1`"
+
+  if [[ -e "../storage/${MACHINENAME}" ]]; then
+    echo "E: ${MACHINENAME} already exists. Press Enter to Continue, or ^C to quit. "
+    read
+    rm -rf "../storage/${MACHINENAME}"
+  fi
+
+  echo " --> restore ${MACHINENAME}"
+  7z x $file -o../storage 1>/dev/null
+done
+
+popd 1>/dev/null
+
 echo "I: Adding git hooks"
 cp -v ./devops/git-hooks/* ./.git/hooks
 
