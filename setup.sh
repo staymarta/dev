@@ -95,6 +95,9 @@ if [[ ! -e "./rancher/mysql" ]]; then
     unzip -q ./rancher/mysql -drancher/
 fi
 
+echo "I: Adding git hooks"
+cp -v ./devops/git-hooks/* ./.git/hooks
+
 echo "I: Pulling server image: ${SERVER_DOCKER_IMAGE}"
 docker pull ${SERVER_DOCKER_IMAGE}
 
