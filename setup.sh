@@ -21,52 +21,8 @@ WORKER_MEM="2048"
 WORKER_DISKSIZE="20000" # 20GB
 WORKER_CPU="2"
 WORKER_AGENT="rancher/agent:v1.1.2"
-WORKER_IMAGE="https://github.com/boot2docker/boot2docker/releases/download/v1.12.6/boot2docker.iso"
+# WORKER_IMAGE="https://github.com/boot2docker/boot2docker/releases/download/v1.12.6/boot2docker.iso" (DEPRECATED)
 WORKER_COUNT="2" # TODO
-
-# TODO: try to support xhyve again.
-#
-# Check for native docker-machine-driver-xhyve support.
-#if [[ ! -e "/usr/local/bin/docker-machine-driver-xhyve" ]]; then
-#  echo "I: Installing docker-machine-driver-xhyve"
-#  brew update
-#  brew install docker docker-compose docker-machine
-#else
-#  echo "I: docker-machine-driver-xhyve already installed."
-#fi
-#echo "--> Correcting permissions of docker-machine-driver-xhyve"
-#sudo chown root:wheel /usr/local/bin/docker-machine-driver-xhyve
-#sudo chmod u+s /usr/local/bin/docker-machine-driver-xhyve
-
-# echo "I: Creating docker-machine for server..."
-# Old Server in a VM.
-#
-# docker-machine create ${SERVER_HOST} --driver virtualbox --virtualbox-disk-size="${SERVER_DISKSIZE}" \
-#  --virtualbox-cpu-count "${SERVER_CPU}" --virtualbox-memory "${SERVER_MEM}" \
-#  --virtualbox-boot2docker-url="${SERVER_IMAGE}"
-#
-# Get Server IP.
-# SERVER_IP="$(docker-machine ssh ${SERVER_HOST} ip addr show eth1 | grep inet | awk '{print $2}' | awk -F '/' '{print $1}' | head -n1)"
-
-# Old Server in a VM way.
-#
-# echo "I: Starting Rancher Server"
-# if [ "$(curl -s http://${SERVER_IP}:8080/ping)" != "pong" ]; then
-#  docker-machine ssh ${SERVER_HOST} docker run -d -v $(PWD)/rancher/mysql:/var/lib/mysql --restart=unless-stopped -p 8080:8080 rancher/server
-#
-#   echo -n "I: (${SERVER_IP}) Waiting for server to start ."
-#   while sleep 5; do
-#       if [ "$(curl -s http://${SERVER_IP}:8080/ping)" = "pong" ]; then
-#           echo Success
-#           break
-#       fi
-#       echo -n "."
-#   done
-# else
-#   echo "I: Already running."
-# Mac OSX checks
-# fi
-
 
 echo "I: running pre-checks ..."
 
@@ -157,25 +113,10 @@ fi
 
 echo "I: Creating worker..."
 docker-machine create ${WORKER_NAME} --driver virtualbox --virtualbox-disk-size="${WORKER_DISKSIZE}" \
-  --virtualbox-cpu-count "${WORKER_CPU}" --virtualbox-memory "${WORKER_MEM}" \
-  --virtualbox-boot2docker-url="${WORKER_IMAGE}"
-
-# TODO Copy over this "init" script
+  --virtualbox-cpu-count "${WORKER_CPU}" --virtualbox-memory "${WORKER_MEM}"
+# Copy the init script.
 echo -n "I: Configuring worker IP ... "
-echo " \
-  echo 'I: changing eth1 ip ...'; \
-  cat /var/run/udhcpc.eth1.pid | xargs sudo kill; \
-  ifconfig eth1 192.168.99.10 netmask 255.255.255.0 broadcast 192.168.99.255 up; \
-  ip addr; \
-  echo 'I: making rancher agent data persist...'; \
-  mkdir -vp /var/lib/rancher; \
-  mount -t vboxsf '${WORKER_NAME}-persist' /var/lib/rancher; \
-  echo 'mount returned \$?'; \
-  echo 'I: creating persistant /service mount...'; \
-  mkdir -vp '/service'; \
-  mount -t vboxsf -o uid=1000,gid=50 '${WORKER_NAME}-link' /service; \
-  echo 'mount returned \$?' \
-" | docker-machine ssh ${WORKER_NAME} sudo tee /var/lib/boot2docker/bootsync.sh > /dev/null
+cat ./devops/init.sh | docker-machine ssh ${WORKER_NAME} sudo tee /var/lib/boot2docker/bootsync.sh > /dev/null
 docker-machine ssh ${WORKER_NAME} sudo chmod +x /var/lib/boot2docker/bootsync.sh
 echo "OK"
 
@@ -183,16 +124,41 @@ echo "OK"
 echo " --> Stopping worker ..."
 docker-machine stop ${WORKER_NAME}
 
+echo "W: Must have sudo permission for this next action. (NFS)"
+sudo echo
+
 # TODO: Volume discovery.
-echo -n "I: Configuring worker to allow storage persistance. ... "
+#echo -n "I: Configuring worker to allow storage persistance. ... "
 
 # Preemptively create folder(s).
-mkdir -p "$(pwd)/storage/${WORKER_NAME}/agent"
-mkdir -p "$(pwd)/storage/${WORKER_NAME}/service"
+#mkdir -p "$(pwd)/storage/${WORKER_NAME}/agent"
+#mkdir -p "$(pwd)/storage/${WORKER_NAME}/service"
 
 # Create shared folders
-VBoxManage sharedfolder add ${WORKER_NAME} --name "${WORKER_NAME}-persist" --hostpath "$(pwd)/storage/${WORKER_NAME}/agent"
-VBoxManage sharedfolder add ${WORKER_NAME} --name "${WORKER_NAME}-link" --hostpath "$(pwd)/storage/${WORKER_NAME}/service"
+#VBoxManage sharedfolder add ${WORKER_NAME} --name "persist" --hostpath "$(pwd)/storage/${WORKER_NAME}/agent"
+#VBoxManage sharedfolder add ${WORKER_NAME} --name "link" --hostpath "$(pwd)/storage/${WORKER_NAME}/service"
+
+echo "I: Setting up nfsd ..."
+
+echo " --> Generating exports ..."
+echo "$(pwd)/storage -mapall=root -alldirs" > ./devops/exports
+
+echo " --> Stopping nfsd if running ..."
+sudo nfsd stop
+
+echo " --> Setting up exports ..."
+sudo cp ./devops/exports /etc/exports
+
+echo " --> Unloading nfsd service ..."
+sudo launchctl unload /System/Library/LaunchDaemons/com.apple.nfsd.plist 2>/dev/null
+
+echo " --> Launching nsfd via launchctl ..."
+sudo nfsd enable
+sudo launchctl load /System/Library/LaunchDaemons/com.apple.nfsd.plist
+sudo nfsd restart # Just in case.
+
+echo " --> nfsd status"
+sudo nfsd status
 
 echo "OK"
 

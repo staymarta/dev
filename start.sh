@@ -8,3 +8,7 @@ docker start rancher-server
 
 echo "--> starting 'rancher-agent' machine"
 docker-machine start rancher-agent
+
+echo "--> starting nfsd ..."
+
+# TODO LINUX

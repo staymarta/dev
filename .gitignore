@@ -1,3 +1,5 @@
 rancher/mysql
 storage/*/agent
 .DS_Store
+devops/exports
+node_modules
