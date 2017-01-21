@@ -5,8 +5,24 @@
 WORKER_NAME="rancher-agent"
 
 echo "I: removing all docker-machines created by setup.sh"
-docker-machine stop rancher rancher-agent
-docker-machine rm rancher rancher-agent
+for machine in $(docker-machine ls --format '{{ .Name }}' | tr '\r\n' ' '); do
+  if [[ -z "${machine}" ]]; then
+    echo "W: No Machines Found."
+    break;
+  fi
+
+  echo " -> ${machine}"
+
+  echo " --> stopping ${machine}"
+  docker-machine stop "${machine}" 1>/dev/null || echo "W: Failed to stop '${machine}'"
+
+  echo " --> removing ${machine}"
+  docker-machine rm -y "${machine}" 1>/dev/null
+  if [[ $? -ne 0 ]] ; then
+    echo "E: Failed to remove '${machine}'"
+    exit 1
+  fi
+done
 
 echo "I: Cleaning up docker ..."
 docker stop rancher-server

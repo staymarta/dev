@@ -42,7 +42,7 @@ After creation, you have two options:
 
 ## Things to come...
 
-* Build Pipeline intergration
+* Build Pipeline integration
 * Quick Deploys to Development
 * Automatic Rancher Snapshots *from* production.
 
@@ -58,11 +58,8 @@ These commands will help us debug issues much faster!
 
 ## Services
 
-Jenkins is running on: `192.168.99.10` at `8080` and owns `50000`
-
-
 All services has the ability to persist data across git. Simply mount the folder
-onto `HOST_MOUNT:IN_CONTAINER` as "/service/some/path:/path/to/save"
+onto `HOST_MOUNT:IN_CONTAINER` as "/storage/some/path:/path/to/save"
 
 *NOTE*: If you run into permission issues, please run you program with the user
 id being `1000`.
@@ -84,7 +81,7 @@ could overwrite other service('s) data.
 
 ### How do I add more agents?
 
-This is pretty simple, but it's coming soon!
+This is pretty simple, but it's coming soon! (Almost done!)
 
 ## License
 
