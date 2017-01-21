@@ -46,7 +46,7 @@ docker-machine ssh ${WORKER_NAME} sudo chmod +x /var/lib/boot2docker/bootsync.sh
 echo "OK"
 
 # Put the new IP into effect.
-echo " --> Stopping worker ..."
+SUB "Stopping worker ..."
 docker-machine stop ${WORKER_NAME}
 
 # TODO: Volume discovery.
@@ -60,10 +60,10 @@ mkdir -p "$(pwd)/storage/${WORKER_NAME}"
 VBoxManage sharedfolder add ${WORKER_NAME} --name "agent" --hostpath "$(pwd)/agents/${WORKER_NAME}"
 VBoxManage sharedfolder add ${WORKER_NAME} --name "storage" --hostpath "$(pwd)/storage/${WORKER_NAME}"
 
-echo " --> Starting worker ..."
+SUB "Starting worker ..."
 docker-machine start ${WORKER_NAME}
 
-echo " --> Regenerating worker certs ..."
+SUB "Regenerating worker certs ..."
 docker-machine regenerate-certs -f ${WORKER_NAME}
 
 # Always consistently get IP.

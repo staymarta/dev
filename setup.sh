@@ -70,7 +70,7 @@ INFO "Starting Rancher Server"
 if [ "$(curl -s http://${SERVER_IP}:8080/ping)" != "pong" ]; then
   docker run --name rancher-server -d -v $(PWD)/rancher/mysql:/var/lib/mysql -p 8080:8080 ${SERVER_DOCKER_IMAGE}
 
-  INFO -n "(${SERVER_IP}) Waiting for server to start ."
+  INFO -n "(${SERVER_IP}) Waiting for server to start"
   while sleep 5; do
     if [ "$(curl -s http://${SERVER_IP}:8080/ping)" = "pong" ]; then
       echo " OK"

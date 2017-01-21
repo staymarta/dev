@@ -14,19 +14,28 @@ function GENERIC {
   echo "${ARG}" "${PREFIX}$*" "\x1B[0m" # Prefix, Text, Color Reset.
 }
 
+# I: <etc>
 function INFO {
   local PREFIX="\x1B[0;94mI: "
 
   GENERIC "${PREFIX}" $*
 }
 
+# --> <etc>
+function SUB {
+  local PREFIX="\x1B[0;90m --> "
 
+  GENERIC "${PREFIX}" $*
+}
+
+# W: <etc>
 function WARN {
   local PREFIX="\x1B[0;93mW: "
 
   GENERIC "${PREFIX}" $*
 }
 
+# E: <etc>
 function ERROR {
   local PREFIX="\x1B[0;41mE: "
 
