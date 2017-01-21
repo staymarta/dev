@@ -18,31 +18,38 @@ chmod +x ./.setup/*.sh
 . ./.setup/checks.sh
 
 if [[ ! -e "./rancher" ]]; then
-  echo "E: Please run in env folder."
+  ERROR "Please run in env folder."
   exit 20
 fi
 
 if [[ ! -e "./rancher/mysql" ]]; then
     if [[ ! -e "./rancher/mysql.zip" ]]; then
-      echo "E: Missing rancher snapshot."
+      ERROR "Missing rancher snapshot."
       exit 1
     fi
 
-    echo "I: Extracting rancher snapshot ..."
+    INFO "Extracting rancher snapshot ..."
     unzip -q ./rancher/mysql -drancher/
 fi
 
-echo "I: Extracting machine agents."
+INFO "Extracting machine agents."
+
+# Extract available snapshots
 pushd "snapshots" 1>/dev/null
 mkdir "../storage" 2>/dev/null
 
 # Extract all available snapshots.
 for file in $(ls);
 do
+  if [[ -z "$file" ]]; then
+    WARN "W: No snapshots available"
+    exit 1
+  fi
+
   MACHINENAME="`echo ${file} | cut -d "_" -f 2 | cut -d "." -f 1`"
 
   if [[ -e "../storage/${MACHINENAME}" ]]; then
-    echo "E: ${MACHINENAME} already exists. Press Enter to Continue, or ^C to quit. "
+    WARN -n "${MACHINENAME} already exists. Press Enter to Continue, or ^C to quit. "
     read
     rm -rf "../storage/${MACHINENAME}"
   fi
@@ -53,17 +60,17 @@ done
 
 popd 1>/dev/null
 
-echo "I: Adding git hooks"
+INFO "Adding git hooks"
 cp -v ./devops/git-hooks/* ./.git/hooks
 
-echo "I: Pulling server image: ${SERVER_DOCKER_IMAGE}"
+INFO "Pulling server image: ${SERVER_DOCKER_IMAGE}"
 docker pull ${SERVER_DOCKER_IMAGE}
 
-echo "I: Starting Rancher Server"
+INFO "Starting Rancher Server"
 if [ "$(curl -s http://${SERVER_IP}:8080/ping)" != "pong" ]; then
   docker run --name rancher-server -d -v $(PWD)/rancher/mysql:/var/lib/mysql -p 8080:8080 ${SERVER_DOCKER_IMAGE}
 
-  echo -n "I: (${SERVER_IP}) Waiting for server to start ."
+  INFO -n "(${SERVER_IP}) Waiting for server to start ."
   while sleep 5; do
     if [ "$(curl -s http://${SERVER_IP}:8080/ping)" = "pong" ]; then
       echo " OK"
@@ -72,9 +79,10 @@ if [ "$(curl -s http://${SERVER_IP}:8080/ping)" != "pong" ]; then
     echo -n "."
   done
 else
-  echo "I: Already Running."
+  INFO "Already Running."
 fi
 
+# Create workers.
 CREATED_WORKERS=0
 until [[ ${CREATED_WORKERS} == ${WORKER_COUNT} ]]; do
   CREATED_WORKERS=$((CREATED_WORKERS+1))

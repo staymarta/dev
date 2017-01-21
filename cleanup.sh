@@ -50,7 +50,7 @@ CONFIRM_DELETE_LOWER="$(echo ${CONFIRM_DELETE} | tr '[:upper:]' '[:lower:]')"
 
 # Convert
 if [[ "$CONFIRM_DELETE_LOWER" == "y" ]]; then
-  rm -r ./storage
+  rm -r ./storage ./agents
   echo "--> Deleted."
 else
   echo "--> Not Deleting."

@@ -1,5 +1,38 @@
 #!/usr/bin/env bash
 
+function GENERIC {
+  local PREFIX=$1
+  local ARG="-e"
+
+  # We don't care about prefix now.
+  shift
+  if [[ "$1" == "-n" ]]; then
+    ARG="-en"
+    shift # shift to remove -n
+  fi
+
+  echo "${ARG}" "${PREFIX}$*" "\x1B[0m" # Prefix, Text, Color Reset.
+}
+
+function INFO {
+  local PREFIX="\x1B[0;94mI: "
+
+  GENERIC "${PREFIX}" $*
+}
+
+
+function WARN {
+  local PREFIX="\x1B[0;93mW: "
+
+  GENERIC "${PREFIX}" $*
+}
+
+function ERROR {
+  local PREFIX="\x1B[0;41mE: "
+
+  GENERIC "${PREFIX}" $*
+}
+
 # SERVER
 export SERVER_IP="127.0.0.1"
 export SERVER_DOCKER_IMAGE="rancher/server:stable"
