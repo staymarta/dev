@@ -48,7 +48,7 @@ CONFIRM_DELETE_LOWER="$(echo ${CONFIRM_DELETE} | tr '[:upper:]' '[:lower:]')"
 
 # Convert
 if [[ "$CONFIRM_DELETE_LOWER" == "y" ]]; then
-  sudo rm -r ./agents
+  rm -r ./agents
   SUB "Deleted."
 else
   SUB "Not Deleting."

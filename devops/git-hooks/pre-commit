@@ -1,4 +1,11 @@
 #!/bin/sh
+echo "--> removing hosts from rancher"
+rancher deactivate $(rancher hosts -q)
+rancher rm $(rancher hosts -a -q)
+
+echo "--> Stopping rancher-server if running"
+docker stop rancher-server
+
 echo "--> running make_snapshot"
 ./devops/make_snapshot.sh
 

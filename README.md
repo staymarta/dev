@@ -91,17 +91,20 @@ Then, in container, use something to refresh it on filesystem change.
 
 ## Default Configuration
 
+### Rancher
+
+Running on `127.0.0.1:8080`
+
+API Key
+
+* Access Key: `D7015BE425412716307C`
+* Secret Key: `3iCBhWCzwAt7jnQ66UkbEPQt54D9bcJ1zn4wgFBt`
+
 ### Vault
 
 Vault Keys
 
 ```
-Unseal Key 1: OAXrrc6LY/sXtGQNRce9J0TJjZROjjPxbgRor013uyEB
-Unseal Key 2: ee50LwymCG5taKZIrNLSyzfHOf508Xv+XWsBzxDfM+0C
-Unseal Key 3: xpEmKTMvSwoBONREwF/JbUgbOqZDfC9lhtOnWiKYDjkD
-Unseal Key 4: OvqHrirT/oJCVybMVzNdYcZ1CZb0HbmLcc8d9o1q5l8E
-Unseal Key 5: hYXVqBVaveYuB1TAO75Gx7mpCs7DkO0Qqne7Y78t24sF
-Initial Root Token: 0d46433c-f82b-6237-9d43-4ab22a73b724
 ```
 
 ## License

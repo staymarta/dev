@@ -42,7 +42,7 @@ fi
 
 INFO "This will take awhile, go grab some coffee! ☕️"
 
-INFO "Extracting machine agents."
+INFO "Extracting service snapshots ..."
 
 # Extract available snapshots
 if [[ -e "${DIR}/snapshots" ]]; then
@@ -138,5 +138,9 @@ until [[ ${CREATED_WORKERS} == ${WORKER_COUNT} ]]; do
   CREATED_WORKERS=$((CREATED_WORKERS+1))
   ./.setup/create-worker.sh ${CREATED_WORKERS}
 done
+
+INFO "Configuring rancher-cli"
+mkdir -p "$HOME/.rancher"
+echo '{"accessKey":"D7015BE425412716307C","secretKey":"3iCBhWCzwAt7jnQ66UkbEPQt54D9bcJ1zn4wgFBt","url":"http://127.0.0.1:8080/v2-beta/schemas","environment":"1a17"}' > "$HOME/.rancher/cli.json"
 
 echo "Done! Rancher is running at http://${SERVER_IP}:8080"

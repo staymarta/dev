@@ -29,6 +29,11 @@ if [[ "$(uname)" == "Darwin" ]]; then
     exit 10
   fi
 
+  if [[ ! -e "/usr/local/bin/rancher" ]]; then
+    INFO "Installing rancher-cli"
+    brew install rancher-cli
+  fi
+
   # Check for docker
   if [[ ! -e "/usr/local/bin/7z" ]]; then
     INFO "Installing p7zip ..."
