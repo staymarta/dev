@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+#
+# (c) 2017 StayMarta
+#
+# TODO: Less code repetition.
 
 INFO "running pre-checks ..."
 
@@ -52,5 +56,6 @@ else # *nix or cygwin
 fi
 
 VBoxManage 1>/dev/null 2>/dev/null || ERROR "Can\'t run VBoxManage. Please make sure it's in PATH. $(exit 10)"
+docker-machine 1>/dev/null 2>/dev/null || ERROR "Can'\t run docker-machine. Please make sure it's in PATH. $(exit 10)"
 
 INFO "checks succedded."

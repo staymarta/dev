@@ -9,6 +9,14 @@
 # - 15  Client creation failed.
 ### CONFIG
 
+echo "Root priviliges are needed to run this script. If prompted, please enter your password"
+
+sudo echo >/dev/null # Attempt to get sudo early on.
+
+DIR="$(cd  $(dirname ${BASH_SOURCE[0]}); pwd)"
+ID="$(id -u)"
+GROUP="$(id -g)"
+
 chmod +x ./.setup/*.sh
 
 # Load our config.
@@ -32,33 +40,38 @@ if [[ ! -e "./rancher/mysql" ]]; then
     unzip -q ./rancher/mysql -drancher/
 fi
 
+INFO "This will take awhile, go grab some coffee! ☕️"
+
 INFO "Extracting machine agents."
 
 # Extract available snapshots
-pushd "snapshots" 1>/dev/null
-mkdir "../storage" 2>/dev/null
+if [[ -e "${DIR}/snapshots" ]]; then
+  pushd "${DIR}/snapshots" 1>/dev/null
+    mkdir "../storage" 2>/dev/null
 
-# Extract all available snapshots.
-for file in $(ls);
-do
-  if [[ -z "$file" ]]; then
-    WARN "W: No snapshots available"
-    exit 1
-  fi
+    # Extract all available snapshots.
+    for file in $(ls);
+    do
+      if [[ -z "$file" ]]; then
+        WARN "W: No snapshots available"
+        exit 1
+      fi
 
-  MACHINENAME="`echo ${file} | cut -d "_" -f 2 | cut -d "." -f 1`"
+      SERVICENAME="`echo ${file} | cut -d "_" -f 2 | cut -d "." -f 1`"
 
-  if [[ -e "../storage/${MACHINENAME}" ]]; then
-    WARN -n "${MACHINENAME} already exists. Press Enter to Continue, or ^C to quit. "
-    read
-    rm -rf "../storage/${MACHINENAME}"
-  fi
+      if [[ -e "../storage/${SERVICENAME}" ]]; then
+        WARN -n "${SERVICENAME} already exists. Press Enter to Continue, or ^C to quit. "
+        read
+        rm -rf "../storage/${SERVICENAME}"
+      fi
 
-  echo " --> restore ${MACHINENAME}"
-  7z x $file -o../storage 1>/dev/null
-done
-
-popd 1>/dev/null
+      echo " --> restore ${SERVICENAME}"
+      7z x $file -o../storage 1>/dev/null
+    done
+  popd 1>/dev/null
+else
+  INFO "No snapshots found."
+fi
 
 INFO "Adding git hooks"
 cp -v ./devops/git-hooks/* ./.git/hooks
@@ -81,6 +94,43 @@ if [ "$(curl -s http://${SERVER_IP}:8080/ping)" != "pong" ]; then
 else
   INFO "Already Running."
 fi
+
+mkdir -p "${DIR}/storage"
+mkdir -p "${DIR}/agents"
+
+################################################################################
+# Mac NFS setup
+#
+
+INFO "Share path: '${SHARE_PATH}'"
+NFSCNF="nfs.server.mount.require_resv_port = 0"
+if ! $(grep "$NFSCNF" /etc/nfs.conf > /dev/null 2>&1); then
+  INFO "[d4m-nfs] Set the NFS nfs.server.mount.require_resv_port value."
+  echo -e "\nnfs.server.mount.require_resv_port = 0\n" | sudo tee -a /etc/nfs.conf
+fi
+
+NFSEXP="\"${SHARE_PATH}\" -alldirs -mapall=${ID}:${GROUP} 127.0.0.1"
+
+grep "${NFSEXP}" /etc/exports 1>/dev/null 2>/dev/null
+# Determine if it's already done.
+if [[ $? -ne 0 ]]; then
+  INFO "Writing to /etc/exports"
+  EXPORTS="$EXPORTS\n$NFSEXP"
+  echo -e "$EXPORTS\n" | sudo tee -a /etc/exports
+fi
+
+INFO "[d4m-nfs] Start and restop nfsd, for some reason restart is not as kind."
+sudo nfsd enable 2>/dev/null
+sudo nfsd stop && sudo nfsd start
+
+INFO -n "[d4m-nfs] Wait until NFS is setup ..."
+while ! rpcinfo -u localhost nfs > /dev/null 2>&1; do
+  echo -n "."
+  sleep .25
+done
+echo " OK"
+
+################################################################################
 
 # Create workers.
 CREATED_WORKERS=0

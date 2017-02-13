@@ -35,8 +35,13 @@ if [[ ! -z "${!DYNREFLINK}" ]]; then
   INFO "Overriding IP"
   echo "IP='${!DYNREFLINK}'" >> "${TEMPFILE}"
 else
-  echo "IP='192.168.99.10${NUM}'" >> "${TEMPFILE}"
+  echo "IP='192.168.99.1${NUM}'" >> "${TEMPFILE}"
 fi
+
+INFO "Adding NFS IP"
+echo "ID='$(id -u)'" >> "${TEMPFILE}"
+echo "GROUP='$(id -g)'" >> "${TEMPFILE}"
+echo "SHARE_PATH='${SHARE_PATH}'" >> "${TEMPFILE}"
 
 echo "" >> "${TEMPFILE}"
 
@@ -54,11 +59,9 @@ INFO "Configuring worker to allow storage persistance. ... "
 
 # Preemptively create folder(s).
 mkdir -p "$(pwd)/agents/${WORKER_NAME}"
-mkdir -p "$(pwd)/storage/${WORKER_NAME}"
 
 # Create shared folders
 VBoxManage sharedfolder add ${WORKER_NAME} --name "agent" --hostpath "$(pwd)/agents/${WORKER_NAME}"
-VBoxManage sharedfolder add ${WORKER_NAME} --name "storage" --hostpath "$(pwd)/storage/${WORKER_NAME}"
 
 SUB "Starting worker ..."
 docker-machine start ${WORKER_NAME}
@@ -70,7 +73,7 @@ docker-machine regenerate-certs -f ${WORKER_NAME}
 WORKER_IP=$(docker-machine ssh ${WORKER_NAME} ip addr show eth1 | grep inet | awk '{print $2}' | awk -F '/' '{print $1}' | head -n1)
 
 INFO "(${WORKER_NAME}->${WORKER_IP}) pulling ${WORKER_AGENT}"
-docker-machine ssh docker pull ${WORKER_AGENT}
+docker-machine ssh "${WORKER_NAME}" pull ${WORKER_AGENT}
 
 INFO "(${WORKER_NAME}->${WORKER_IP}) fetching agent string..."
 PROJECT_ID=$(curl -s -X GET http://${SERVER_IP}:8080/v1/projects | python -c'import json,sys;print(json.load(sys.stdin)["data"][0]["id"])')

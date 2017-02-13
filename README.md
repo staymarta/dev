@@ -58,11 +58,17 @@ These commands will help us debug issues much faster!
 
 ## Services
 
+**ALL SERVICES SHARE THE SAME DIRECTORY**
+
 All services has the ability to persist data across git. Simply mount the folder
 onto `HOST_MOUNT:IN_CONTAINER` as "/storage/some/path:/path/to/save"
 
-*NOTE*: If you run into permission issues, please run you program with the user
-id being `1000`.
+**NOTE**: If you run into permission issues, please run your program with the user
+'staymarta' (normally u:501 g:20).
+
+**NOTE**: Be careful to *never* write to `/storage` without a dir included, since you
+could overwrite other service('s) data.
+
 
 ## FAQ
 
@@ -74,14 +80,29 @@ Coming soon...
 
 Simple, just mirror your service to /storage (using rsync, or whatever)
 
-and then write code in the following dir `./storage/WORKER_NAME/<your-dir>`
+and then write code in the following dir `./storage/<your-dir>`
 
-**NOTE**: Be careful to *never* write to /service without a dir included, since you
-could overwrite other service('s) data.
+Then, in container, use something to refresh it on filesystem change.
+
 
 ### How do I add more agents?
 
-This is pretty simple, but it's coming soon! (Almost done!)
+`./scripts/create-worker`
+
+## Default Configuration
+
+### Vault
+
+Vault Keys
+
+```
+Unseal Key 1: OAXrrc6LY/sXtGQNRce9J0TJjZROjjPxbgRor013uyEB
+Unseal Key 2: ee50LwymCG5taKZIrNLSyzfHOf508Xv+XWsBzxDfM+0C
+Unseal Key 3: xpEmKTMvSwoBONREwF/JbUgbOqZDfC9lhtOnWiKYDjkD
+Unseal Key 4: OvqHrirT/oJCVybMVzNdYcZ1CZb0HbmLcc8d9o1q5l8E
+Unseal Key 5: hYXVqBVaveYuB1TAO75Gx7mpCs7DkO0Qqne7Y78t24sF
+Initial Root Token: 0d46433c-f82b-6237-9d43-4ab22a73b724
+```
 
 ## License
 

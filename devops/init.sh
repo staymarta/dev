@@ -11,7 +11,16 @@ mount -t vboxsf 'agent' /var/lib/rancher
 echo "mount returned $?"
 
 # Mount the rancher-agent shared folder.
-echo 'I: creating persistant /storage mount...'
+echo "I: creating persistant '/storage' mount from '${SHARE_PATH}'"
 mkdir -vp '/storage'
-mount -t vboxsf -o uid=1000,gid=50 'storage' /storage
+mount -t nfs -o noacl,noatime,nolock,async "10.0.2.2:${SHARE_PATH}" /storage
 echo "mount returned $?"
+
+# Fix rancher/server#7379
+echo "I: Fixing rancher/server#7379"
+mkdir -p /etc/docker
+echo '{ "dns": ["8.8.8.8", "8.8.4.4"], "dns-search": ["example.org"] }' | tee /etc/docker/daemon.json
+
+echo "I: Creating user 'staymarta'"
+addgroup -g ${GROUP} staymarta
+adduser -u ${ID} -D -s /bin/ash -G staymarta staymarta
