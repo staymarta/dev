@@ -1,0 +1,24 @@
+version: '3'
+services:
+
+  # Postgres our Database.
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: ""
+    volumes:
+    - ./storage/postgres:/var/lib/postgresql/data
+
+  # Vault Secret Service
+  vault:
+    cap_drop:
+      - IPC_LOCK
+    environment:
+      SKIP_SETCAP: "yes"
+    image: vault
+    volumes:
+      - ./storage/vault/file:/vault/file
+      - ./storage/vault/config:/vault/config
+      - ./storage/vault/logs:/vault/logs
+    command:
+      - "server"

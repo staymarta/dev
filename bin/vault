@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#
+# (c) 2016 StayMarta
+
+VAULT_ADDR=http://127.0.0.1:8200
+CONTAINER="dev2_vault_1"
+
+echo "running in ${CONTAINER}"
+if [[ ! "$1" ]]; then
+  docker exec -it "${CONTAINER}" /bin/sh -ic "export VAULT_ADDR=${VAULT_ADDR}; export VAULT_TOKEN=${VAULT_TOKEN}; export SKIP_SETCAP='yes'; echo -e \"Vault is running at: ${VAULT_ADDR}. \nVault Token: ${VAULT_TOKEN}\n\"; /bin/ash --login"
+  exit
+fi
+docker exec -it "${CONTAINER}" /bin/sh -c "VAULT_ADDR=${VAULT_ADDR} VAULT_TOKEN=${VAULT_TOKEN} SKIP_SETCAP='yes' vault $*"

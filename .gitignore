@@ -1,6 +1,2 @@
-rancher/mysql
-storage
 .DS_Store
-devops/exports
-node_modules
-agents
+storage

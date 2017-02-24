@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "--> running make_snapshot"
+./.setup/make_snapshot.sh
+
+echo " --> adding new snapshot(s) to commit"
+git add snapshots/**.7z

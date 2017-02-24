@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#
+# (c) 2016 StayMarta
+
+CONTAINER="dev2_postgres_1"
+USER="postgres"
+DATABASE="postgres"
+
+if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
+  cat <<EOF
+psql [OPTION] [VALUE]
+
+Options:
+  --user, -u             specify user to connect to postgres as
+  --interactive, -i      drop to a shell instead of running psql
+
+Report bugs at https://github.com/staymarta/dev
+EOF
+exit
+fi
+
+echo "running in ${CONTAINER}"
+
+if [[ "$1" == "--user" ]] || [[ "$1" == "-u" ]]; then
+  if [[ -z "$2" ]]; then echo "E: User not specified"; exit 1; fi
+  USER="$2"
+
+  echo "running as '${USER}'"
+  shift
+  shift
+fi
+
+if [[ "$1" == '--interactive' ]] || [[ "$1" == "-i" ]]; then
+  docker exec -it "${CONTAINER}" /bin/bash -i
+  exit
+fi
+
+echo $1
+docker exec -it "${CONTAINER}" /bin/bash -c "psql --username=${USER} ${DATABASE}"
