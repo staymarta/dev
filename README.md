@@ -6,25 +6,16 @@ This repo contains everything you need to start hacking on the StayMarta backend
 
 ### Prerequisites
 
-* [docker](https://docker.io) EXCEPT Mac, see below.
+* [docker](https://docker.io)
+* [docker-compose] (https://docs.docker.com/compose/install/)
 
 ### Install
 
 ```bash
 
 $ setup.sh
+$ docker-compose up
 ```
-
-... and you're done!
-
-Rancher will be accessible at http://127.0.0.1:8080.
-
-#### Controlling the Stack
-
-After creation, you have two options:
-
-  * `start.sh` - starts the entire stack
-  * `cleanup.sh` - customizable removal of the stack.
 
 ## Things to come...
 
@@ -36,9 +27,9 @@ After creation, you have two options:
 
 Please attach a full log, and the output of a couple of commands:
 
-`docker-machine ls`
-
 `docker ps`
+
+`docker-compose logs`
 
 These commands will help us debug issues much faster!
 
@@ -50,11 +41,7 @@ Coming soon...
 
 ### I don't like rebuilding images!
 
-Simple, just mirror your service to /storage (using rsync, or whatever)
-
-and then write code in the following dir `./storage/<your-dir>`
-
-Then, in container, use something to refresh it on filesystem change.
+Add a volume in the docker-compose to target ./storage/<service>:/in/container/dir
 
 ## Default Configuration
 
