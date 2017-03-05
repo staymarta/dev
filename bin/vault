@@ -3,7 +3,7 @@
 # (c) 2016 StayMarta
 
 VAULT_ADDR=http://127.0.0.1:8200
-CONTAINER="dev2_vault_1"
+CONTAINER="dev_vault_1"
 
 echo "running in ${CONTAINER}"
 if [[ ! "$1" ]]; then

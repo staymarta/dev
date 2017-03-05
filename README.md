@@ -9,6 +9,10 @@ This repo contains everything you need to start hacking on the StayMarta backend
 * [docker](https://docker.io)
 * [docker-compose] (https://docs.docker.com/compose/install/)
 
+Mac
+
+* [Tunnelblick](https://tunnelblick.net/downloads.html) (For 172.16.0.0 access)
+
 ### Install
 
 ```bash
@@ -38,6 +42,12 @@ These commands will help us debug issues much faster!
 ### How do I deploy?
 
 Coming soon...
+
+### What's the difference between `storage` and `services`
+
+Services is intended for git repos, things that will be pulled on clone.
+
+Storage is intended for binaries, things like a `postgres` database.
 
 ### I don't like rebuilding images!
 
