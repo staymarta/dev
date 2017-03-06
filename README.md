@@ -4,28 +4,67 @@ This repo contains everything you need to start hacking on the StayMarta backend
 
 ## Setup
 
-### Prerequisites
+### Prerequisites 
+
+**NOTICE** Macs should see [Install](#Install)
 
 * [docker](https://docker.io)
 * [docker-compose] (https://docs.docker.com/compose/install/)
 
-Mac
-
-* [Tunnelblick](https://tunnelblick.net/downloads.html) (For 172.16.0.0 access)
-
 ### Install
 
-```bash
 
-$ setup.sh
-$ docker-compose up
+
+#### Mac
+
+```bash
+# Install Brew
+$ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+# Install Docker for Mac
+$ brew cask install tunnelblick docker
 ```
+
+Install the `openvpn` profile in `development/docker-mac-network` called `docker-for-mac.ovpn`. This will enable you to access the internal container network, `172.18.0.0/32`. If you aren't working with services in stack, this isn't needed.
+
+
+
+**NOTICE** Services will not work with this solution unless they expose a port. You can solve this by doing something like this:
+
+
+
+```yaml
+services:
+	vault:
+		# Docker maps this to a random port, but is :80 in container (iptables hack)
+		ports: [ "80" ] 
+```
+
+
+
+
+
+### Binaries
+
+A few scripts are provided to help interact with the stack. They are in `bin/`. You can setup an automatic `.env` in plugin with your shell, or `source .env` before working in this environment. This will expose each binary into your `PATH`.
+
+
+
+Example
+
+
+
+```bash
+$ source .env
+$ vault # vault -> ./bin/vault -> container -> vault
+```
+
+
 
 ## Things to come...
 
-* Build Pipeline integration
-* Quick Deploys to Development
-* Automatic Rancher Snapshots *from* production.
+* Production Data Integration 
+* Image based stack services (i.e Jenkins)
 
 ## Reporting Errors
 
@@ -37,11 +76,9 @@ Please attach a full log, and the output of a couple of commands:
 
 These commands will help us debug issues much faster!
 
+Soon we'll have a script for this.
+
 ## FAQ
-
-### How do I deploy?
-
-Coming soon...
 
 ### What's the difference between `storage` and `services`
 
