@@ -6,7 +6,7 @@ This repo contains everything you need to start hacking on the StayMarta backend
 
 ### Prerequisites 
 
-**NOTICE** Macs should see [Install](#Install)
+**NOTICE** Macs should see [Install](#install)
 
 * [docker](https://docker.io)
 * [docker-compose] (https://docs.docker.com/compose/install/)
