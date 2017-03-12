@@ -65,6 +65,8 @@ services:
   gateway:
     build: ./services/gateway
     ports: ["80"]
+    depends_on:
+      - rabbitmq
     environment:
       VAULT_TOKEN: "13984518-9666-3c1d-1c45-e53edb8ae393"
     volumes:
