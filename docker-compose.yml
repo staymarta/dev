@@ -71,3 +71,10 @@ services:
       VAULT_TOKEN: "13984518-9666-3c1d-1c45-e53edb8ae393"
     volumes:
       - ./services/gateway:/gateway
+
+  users:
+    build: ./services/users
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./services/users:/users

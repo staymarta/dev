@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+SERVICE="$(echo $1 | tr '[:upper:]' '[:lower:]')"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SERVICE_DIR="${DIR}/../services/${SERVICE}"
+
+if [ -z "${SERVICE}" ]; then
+	echo "E: Service name not specified"
+	exit 2
+fi
+
+if [ -e "${SERVICE_DIR}" ]; then
+	echo "W: Service '${SERVICE}' already exists at '${SERVICE_DIR}'"
+fi
+
+echo -n "About to create service '${SERVICE}', Ok? [Y/n]: "
+read yesorno
+
+if [[ "$(echo $yesorno | tr '[:upper:]' '[:lower:]')" != 'y' ]]; then
+	echo "Not creating service"
+	exit 1
+fi
+
+mkdir -p "${SERVICE_DIR}"
+pushd "${SERVICE_DIR}"
+git init
+yarn init
+yarn add rabbot debug eslint uuid
+
+echo "Service '${SERVICE}' created."
+popd >/dev/null

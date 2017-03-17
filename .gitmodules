@@ -1,3 +1,11 @@
 [submodule "gateway"]
         path = services/gateway
         url = git://github.com/staymarta/gateway.git
+
+[submodule "users"]
+	path = services/users
+	url  = git://github.com/staymarta/users.git
+
+[submodule "services-base"]
+	path = development/service-base
+	url  = git://github.com/staymarta/services-base.git
