@@ -13,7 +13,18 @@ This repo contains everything you need to start hacking on the StayMarta backend
 
 ### Install
 
+Make sure to clone resursively.
 
+```bash
+$ git clone --recursive git://github.com/staymarta/dev
+```
+
+#### What to do if you forgot to clone recursively:
+
+```bash
+$ git submodule init
+$ git submodule update
+```
 
 #### Mac
 
