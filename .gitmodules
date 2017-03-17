@@ -8,4 +8,4 @@
 
 [submodule "services-base"]
 	path = development/service-base
-	url  = git://github.com/staymarta/services-base.git
+	url  = git://github.com/staymarta/service-base.git
