@@ -1,13 +1,12 @@
 version: '3'
 services:
 
-# Development
+# Development (Mac OS X)
 ################################################################################
   proxy:
     build: ./development/docker-mac-network
     ports:
       - "127.0.0.1:13194:13194"
-      #- "127.0.0.1:13194:13194/udp"
     command: TCP-LISTEN:13194,fork TCP:172.17.0.1:1194
 
   openvpn:
@@ -20,7 +19,6 @@ services:
       - NET_ADMIN
     environment:
       dest: docker-for-mac.ovpn
-      DEBUG: '1'
     command: /local/helpers/run.sh
 
 # DevOps
@@ -34,43 +32,19 @@ services:
     volumes:
     - ./storage/postgres:/var/lib/postgresql/data
 
-  # Vault Secret Service
-  vault:
-    cap_drop:
-      - IPC_LOCK
-    environment:
-      SKIP_SETCAP: "yes"
-    image: vault
-    volumes:
-      - ./storage/vault/file:/vault/file
-      - ./storage/vault/config:/vault/config
-      - ./storage/vault/logs:/vault/logs
-    command:
-      - "server"
-
-  # CD/CI
-  #jenkins:
-  #  image: jenkinsci/blueocean
-  #  volumes:
-  #    - ./storage/jenkins:/var/jenkins_home
-
   # Messaging
   rabbitmq:
     image: rabbitmq:management
-
 
 ################################################################################
 
   # API Gateway (TODO: Basic Image for Services.)
   gateway:
     build: ./services/gateway
-    ports: ["80"]
-    depends_on:
-      - rabbitmq
-    environment:
-      VAULT_TOKEN: "13984518-9666-3c1d-1c45-e53edb8ae393"
+    ports: ["80"] # Docker for Mac fix for no ports.
     volumes:
       - ./services/gateway:/gateway
+      - ./services/libcommunication/js:/gateway/node_modules/libcommunication
 
   users:
     build: ./services/users
@@ -78,3 +52,4 @@ services:
       - rabbitmq
     volumes:
       - ./services/users:/users
+      - ./services/libcommunication/js:/users/node_modules/libcommunication
