@@ -32,10 +32,6 @@ services:
     volumes:
     - ./storage/postgres:/var/lib/postgresql/data
 
-  # Messaging
-  rabbitmq:
-    image: rabbitmq:management
-
 ################################################################################
 
   # API Gateway (TODO: Basic Image for Services.)
@@ -48,8 +44,6 @@ services:
 
   users:
     build: ./services/users
-    depends_on:
-      - rabbitmq
     volumes:
       - ./services/users:/users
       - ./services/libcommunication/js:/users/node_modules/libcommunication
