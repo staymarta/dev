@@ -24,7 +24,10 @@ mkdir -p "${SERVICE_DIR}"
 pushd "${SERVICE_DIR}"
 git init
 yarn init
-yarn add rabbot debug eslint uuid
+yarn add express debug eslint uuid
+
+echo "# Autogenerate by mkservice"                > Dockerfile
+echo "FROM staymarta/services-base-node:latest"  >> Dockerfile
 
 echo "Service '${SERVICE}' created."
 popd >/dev/null
