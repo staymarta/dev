@@ -24,13 +24,12 @@ services:
 # DevOps
 ################################################################################
 
-  # Postgres our Database.
-  postgres:
-    image: postgres
+  # Database.
+  arangodb:
+    image: arangodb/arangodb
     environment:
-      POSTGRES_PASSWORD: ""
-    volumes:
-    - ./storage/postgres:/var/lib/postgresql/data
+      ARANGO_ROOT_PASSWORD: supersecretpassword
+    ports: [ "8529" ] # Hack.
 
 ################################################################################
 
@@ -44,6 +43,7 @@ services:
 
   users:
     build: ./services/users
+    ports: [ "5858" ]
     volumes:
       - ./services/users:/users
       - ./services/libcommunication/js:/users/node_modules/libcommunication
