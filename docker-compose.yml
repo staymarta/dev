@@ -36,14 +36,14 @@ services:
   # API Gateway (TODO: Basic Image for Services.)
   gateway:
     build: ./services/gateway
-    ports: ["80"] # Docker for Mac fix for no ports.
+    ports: [ "80" ] # Docker for Mac fix for no ports.
     volumes:
       - ./services/gateway:/gateway
-      - ./services/libcommunication/js:/gateway/node_modules/libcommunication
+      # Native modules fix - /gateway/node_modules
 
+  # Users Endpoint Service
   users:
     build: ./services/users
     ports: [ "5858" ]
     volumes:
       - ./services/users:/users
-      - ./services/libcommunication/js:/users/node_modules/libcommunication
